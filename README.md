@@ -135,7 +135,7 @@ public class GenericBoundariesExample {
 Now if we were to change the `List` of numbers to be a list of `String` values,
 we would get a compilation error prior to executing:
 
-```plaintext
+```text
 GenericBoundariesExample.java:21: error: method sumList in class GenericBoundariesExample cannot be applied to given types;
         Double sum = sumList(nums);
                      ^
@@ -214,8 +214,7 @@ public static void main(String[] args) {
 ```
 
 But what if we wanted our `sumIntegerList()` method to be able to add integers
-that are held in any class that can hold integer values, which is any class that
-is a superclass of the `Integer` class?
+that are held in any class that is a superclass of the `Integer` class?
 
 Let's first examine the `Integer` class hierarchy:
 

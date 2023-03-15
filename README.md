@@ -177,85 +177,71 @@ The syntax for specifying an upper bound wildcard is as follows:
 - In the generic parameter type definition, we use the `? extends BaseType`
   notation where `?` is the wildcard and `BaseType` is the class that should be
   the upper bound of the parameter type.
-    - In this case, the `BaseType` would be `Number` since that is the class we
-      want to extend.
+  - In this case, the `BaseType` would be `Number` since that is the class we
+    want to extend.
 
 With the upper bound wildcard above, we are restricting the unknown type of the
 `sumList()` method to classes that are subclasses of `Number`.
 
-We can also specify a lower bound, which will restrict the unknown type of a
-method to classes that are super classes of the class we specify.
+We can also specify a lower bound, which will restrict the generic types that
+the method accepts by accepting a type and all of its super classes.
 
-Let's rewrite our `sumList()` method to only accept lists of `Integer` objects:
+Consider the following hierarchy:
+
+![person-UML](https://curriculum-content.s3.amazonaws.com/java-mod-3/generic-boundaries/uml-person.PNG)
+
+For simplicity, assume each of the classes we see pictured here are empty. This
+is to just define the structure and demonstrate lower bound generics.
+
+Consider the following method:
 
 ```java
-public static Integer sumIntegerList(List<Integer> numberList) {
-    int sum = 0;
-    for (Integer number: numberList) {
-        sum = sum + number;
-    }
-
-    return sum;
+public static void addHero(List<FirstResponder> heroList) {
+    heroList.add(new FirstResponder());
+    System.out.println("Added a new hero!");
 }
 ```
 
-This would work to add a list of `Integer` objects:
+This would work to add a list of `FirstResponder` objects:
 
 ```java
 public static void main(String[] args) {
-    List<Integer> integers = new ArrayList<Integer>();
-    integers.add(10);
-    integers.add(20);
-    integers.add(30);
+    List<FirstResponder> firstResponderList = new ArrayList<>();
 
-    Number sum = sumLIntegerist(integers);
-    System.out.println("sum = " + sum);
+    // Add a hero to the firstResponderList
+    addHero(firstResponderList);
 }
 ```
 
-But what if we wanted our `sumIntegerList()` method to be able to add integers
-that are held in any class that is a superclass of the `Integer` class?
+But what if we say that anyone can be a hero? What if we wanted our `addHero()`
+method to be able to add heroes that are held in any class that is a superclass
+of the `FirstResponder` class?
 
-Let's first examine the `Integer` class hierarchy:
-
-- `Integer extends Number` and
-- `Number extends Object`, which yields the following hierarchy:
-- `Object` -> `Number` -> `Integer`
-
-Trying to call this `sumIntegerList()` method with a list of `Number` objects
-like this:
+Trying to call the `addHero()` method with a list of `Person` objects like this:
 
 ```java
 public static void main(String[] args) {
-    List<Number> numbers = new ArrayList<Number>();
-    numbers.add(0);
-    numbers.add(10);
-    numbers.add(20);
-
-    Number sum = sumIntegerList(numbers);
-    System.out.println("sum = " + sum);
+    List<Person> people = new ArrayList<>();
+    
+    // Add a hero to the people list
+    addHero(people);
 }
 ```
 
 Gives us the following error:
 
-```plaintext
-Example.java:21: error: incompatible types: List<Number> cannot be converted to List<Integer>
-        Integer sum = sumList(nums);
+```text
+java: incompatible types: java.util.List<org.example.Person> cannot be converted to java.util.List<org.example.FirstResponder>
 ```
 
-This is because the type `List<Integer>` only matches the `Integer` class
-specifically. For more flexibility, we can specify a lower bound for our generic
-type like so:
+This is because the type in `List<FirstResponder>` only matches the
+`FirstResponder` class. For more flexibility, we can specify a lower bound for
+our generic type like so:
 
 ```java
-public static Integer sumIntegerList(List<? super Integer> numberList) {     
-    Integer sum = Integer.valueOf(0);
-    for (Object number: numberList) {
-        sum += (Integer)number;
-    }
-
-    return sum;
+public static void addHero(List<? super FirstResponder> heroList) {
+    heroList.add(new FirstResponder());
+    System.out.println("Added a new hero!");
 }
 ```
 
@@ -265,40 +251,73 @@ The syntax for specifying a lower bound wildcard is as follows:
   where `?` is the wildcard and `Type` is the class that should be the lower
   bound of the parameter type.
 
-In this case, all objects that are passed into this method must be a `Integer`
-or one of the classes it inherits from (directly, i.e. `Number` or indirectly,
-which in this case means `Object`).
+In this case, all objects that are passed into this method must be a
+`FirstResponder` or one of the classes it inherits from directly or indirectly.
 
-Also notice that we had to change the `for` loop slightly too to adjust for a
-lower bound. If, in the event, we receive a Java `Object`, then we need to iterate
-through the list of the Java `Objects`, and then explicitly cast it to an
-`Integer`.
-
-Now the following code compiles and runs:
+This means we would **not** be able to pass a list of `Cook` objects or
+`Firefighter` objects to the `addHero()` method. Let's look at the following
+code:
 
 ```java
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
-public class Example {
+public class GenericBoundariesExample {
 
-  public static Integer sumList(List<? super Integer> numberList) {
-    int sum = 0;
-    for (Object number : numberList) {
-      sum = sum + (Integer)number;
+    public static void addHero(List<? super FirstResponder> heroList) {
+        heroList.add(new FirstResponder());
+        System.out.println("Added a new hero!");
     }
 
-    return sum;
-  }
+    public static void main(String[] args) {
+        List<FirstResponder> firstResponderList= new ArrayList<>();
+        List<Firefighter> firefighterList= new ArrayList<>();
+        List<Person> personList= new ArrayList<>();
+        List<Cook> cookList= new ArrayList<Cook>();
 
-  public static void main(String[] args) {
-    List<Number> nums = new ArrayList<Number>();
-    nums.add(10);
-    nums.add(20);
-    nums.add(30);
+        // add a hero to a FirstResponder List
+        addHero(firstResponderList);
 
-    Integer sum = sumList(nums);
-    System.out.println("Sum is " + sum);
-  }
+        // compile time error
+        // cannot add a hero to the Firefighter List because a Firefighter is a subclass of FirstResponder
+        //addHero(firefighterList);
+
+        // add a hero to a Person List since Person is a super class of FirstResponder
+        addHero(personList);
+
+        //compile time error
+        //cannot add a hero to the Cook List because a Cook is not a super class of FirstResponder
+        //addHero(cookList);
+    }
 }
+```
+
+If we tried to pass a `List` of `Firefighter` objects, we'd run into this
+compile-time error:
+
+```text
+java: incompatible types: java.util.List<org.example.Firefighter> cannot be converted to java.util.List<? super org.example.FirstResponder>
+```
+
+This is because `Firefighter` is a subclass of `FirstResponder`, not a super
+class and the `addHero()` method is looking for a list with a lower bound of
+`FirstResponder`. Since `Firefighter` is lower, it will not be an allowed type.
+
+Similarly, if we tried to pass a `List` of `Cook` objects, we'd run into a
+similar compile-time error:
+
+```text
+java: incompatible types: java.util.List<org.example.Cook> cannot be converted to java.util.List<? super org.example.FirstResponder>
+```
+
+This is because `Cook` is not a super class of `FirstResponder` and the
+`addHero()` method is only looking for types that are of `FirstResponder` or
+one of the classes it inherits from.
+
+When we have the `addHero(firefighterList)` and `addHero(cookList)` lines
+commented out, the program will compile and output:
+
+```text
+Added a new hero!
+Added a new hero!
 ```

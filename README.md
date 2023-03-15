@@ -321,3 +321,7 @@ commented out, the program will compile and output:
 Added a new hero!
 Added a new hero!
 ```
+
+## References
+
+- [TutorialsPoint: Java Generics - Lower Bounded Wildcards](https://www.tutorialspoint.com/java_generics/java_generics_lower_bounded.htm)
